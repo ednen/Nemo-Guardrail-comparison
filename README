@@ -1,31 +1,31 @@
-# Large-Scale Prompt Injection Classifier Benchmark
+ Large-Scale Prompt Injection Classifier Benchmark
 
-## Custom Llama LoRA vs. Meta Prompt Guard 2 vs. Llama Guard 3
+ Custom Llama LoRA vs. Meta Prompt Guard 2 vs. Llama Guard 3
 
-**Benchmark date:** April 22, 2026
-**Scope:** Head-to-head evaluation of three prompt injection detection models on two established benchmarks, focusing on the low-FPR deployment regime.
+Benchmark date: April 22, 2026
+Scope: Head-to-head evaluation of three prompt injection detection models on two established benchmarks, focusing on the low-FPR deployment regime.
 
 ---
 
-## 1. Summary
+1. Summary
 
 | Model | PromptShield AUC | deepset AUC | PromptShield TPR@1%FPR | deepset TPR@1%FPR | Latency p50 |
 |---|---|---|---|---|---|
-| **Llama LoRA (Focal Loss)** | **0.958** | 0.838 | **0.838** | 0.304 | 35 ms |
-| Prompt Guard 2 (86M) | 0.837 | **0.923** | 0.171 | 0.297 | **5 ms** |
+| Llama LoRA (Focal Loss) | 0.958 | 0.838 | 0.838 | 0.304 | 35 ms |
+| Prompt Guard 2 (86M) | 0.837 | 0.923 | 0.171 | 0.297 | 5 ms |
 | Llama Guard 3 (8B) | 0.557 | 0.666 | 0.004 | 0.076 | 22 ms |
 
-**Headline findings:**
+Headline findings:
 
-1. The **custom Llama LoRA model wins decisively on PromptShield**, the harder and more deployment-relevant of the two benchmarks. It catches 83.8% of attacks at a 1% false-alarm rate, versus 17.1% for Prompt Guard 2 and essentially 0% for Llama Guard 3.
-2. **Prompt Guard 2 wins on deepset**, the simpler and older benchmark. This reflects a distribution-fit difference — PG2's training data is closer to deepset's attack style.
-3. **Llama Guard 3 is not a viable prompt injection detector.** Its AUC of 0.557-0.666 is close to random; at the default threshold of 0.5, it classifies every input as safe. This matches the observation that Llama Guard 3 is optimized primarily for harmful content (violence, sexual content, hate speech), with prompt injection being one minor category among many.
+1. The custom Llama LoRA model wins decisively on PromptShield, the harder and more deployment-relevant of the two benchmarks. It catches 83.8% of attacks at a 1% false-alarm rate, versus 17.1% for Prompt Guard 2 and essentially 0% for Llama Guard 3.
+2. Prompt Guard 2 wins on deepset, the simpler and older benchmark. This reflects a distribution-fit difference: PG2's training data is closer to deepset's attack style.
+3. Llama Guard 3 is not a viable prompt injection detector. Its AUC of 0.557-0.666 is close to random; at the default threshold of 0.5, it classifies every input as safe. This matches the observation that Llama Guard 3 is optimized primarily for harmful content (violence, sexual content, hate speech), with prompt injection being one minor category among many.
 
 ---
+ 
+2. Models compared
 
-## 2. Models compared
-
-### Rail 1: Llama LoRA (Focal Loss) — custom-trained
+Rail 1: Llama LoRA (Focal Loss) — custom-trained
 
 - Base: `meta-llama/Llama-3.1-8B-Instruct`
 - Architecture: `AutoModelForSequenceClassification`, `num_labels=2`
@@ -34,7 +34,7 @@
 - Inference: 4-bit NF4 quantization for base, bf16 for classification head
 - Trained specifically for prompt injection detection on PromptShield's training split
 
-### Rail 2: Llama Prompt Guard 2 (86M)
+ Rail 2: Llama Prompt Guard 2 (86M)
 
 - `meta-llama/Llama-Prompt-Guard-2-86M`
 - Backbone: mDeBERTa-v3-base (multilingual)
@@ -42,7 +42,7 @@
 - Energy-based training objective for out-of-distribution robustness
 - Meta's recommended small-model baseline for prompt attack detection
 
-### Rail 3: Llama Guard 3 (8B)
+ Rail 3: Llama Guard 3 (8B)
 
 - `meta-llama/Llama-Guard-3-8B`
 - Generative safety classifier: outputs "safe" or "unsafe" plus MLCommons category codes
@@ -51,7 +51,7 @@
 
 ---
 
-## 3. Datasets
+3. Datasets
 
 ### PromptShield eval split (n=2000 stratified)
 
@@ -65,16 +65,16 @@ BIPIA and qualifire benchmarks were included in the test plan but did not load s
 
 ---
 
-## 4. Full results
+4. Full results
 
-### Standard metrics @ F1-optimal threshold
+Standard metrics @ F1-optimal threshold
 
 | Model | Dataset | Accuracy | Precision | Recall | F1 | AUC |
 |---|---|---|---|---|---|---|
-| Llama LoRA (Focal Loss) | PromptShield | 0.944 | 0.957 | 0.930 | **0.943** | **0.958** |
+| Llama LoRA (Focal Loss) | PromptShield | 0.944 | 0.957 | 0.930 | 0.943 | 0.958 |
 | Llama LoRA (Focal Loss) | deepset | 0.781 | 0.709 | 0.760 | 0.734 | 0.838 |
 | Prompt Guard 2 (86M) | PromptShield | 0.764 | 0.695 | 0.940 | 0.799 | 0.837 |
-| Prompt Guard 2 (86M) | deepset | 0.840 | 0.759 | 0.875 | **0.813** | **0.923** |
+| Prompt Guard 2 (86M) | deepset | 0.840 | 0.759 | 0.875 | 0.813 | 0.923 |
 | Llama Guard 3 (8B) | PromptShield | 0.500 | 0.500 | 1.000 | 0.667 | 0.557 |
 | Llama Guard 3 (8B) | deepset | 0.516 | 0.508 | 0.988 | 0.671 | 0.666 |
 
@@ -93,7 +93,7 @@ BIPIA and qualifire benchmarks were included in the test plan but did not load s
 
 | Model | Dataset | p50 (ms) | p95 (ms) |
 |---|---|---|---|
-| Prompt Guard 2 (86M) | PromptShield | **5.4** | 5.6 |
+| Prompt Guard 2 (86M) | PromptShield | 5.4 | 5.6 |
 | Prompt Guard 2 (86M) | deepset | 5.3 | 5.5 |
 | Llama Guard 3 (8B) | PromptShield | 22.0 | 34.8 |
 | Llama Guard 3 (8B) | deepset | 20.5 | 21.5 |
@@ -104,19 +104,19 @@ All three models are fast enough for an inline input rail. Prompt Guard 2 has a 
 
 ---
 
-## 5. Reading the PromptShield result
+5. Reading the PromptShield result
 
-The custom Llama LoRA at **TPR@0.1%FPR = 0.773** means: at a threshold that allows only 1 benign prompt in 1000 to be wrongly flagged, the model still catches 77.3% of actual injection attacks.
+The custom Llama LoRA at TPR@0.1%FPR = 0.773 means: at a threshold that allows only 1 benign prompt in 1000 to be wrongly flagged, the model still catches 77.3% of actual injection attacks.
 
 This is a genuinely strong production-ready number. For context, the PromptShield paper's headline Llama-3-1-8B model (Jacob et al. 2025, Table 4) reports TPR@0.1%FPR = 0.6533 on the full eval split. This custom model — same base architecture but with focal loss added — scores higher on this metric at 2K samples.
 
-**Why focal loss helps here:** PromptShield's eval split is heavily benign-skewed when viewed at low FPR. Focal loss down-weights the loss from easy benign examples and forces the model to focus on harder boundary cases. This is precisely what moves the needle in the low-FPR regime, which is why the focal-loss variant meaningfully outperforms a standard cross-entropy baseline.
+Why focal loss helps here: PromptShield's eval split is heavily benign-skewed when viewed at low FPR. Focal loss down-weights the loss from easy benign examples and forces the model to focus on harder boundary cases. This is precisely what moves the needle in the low-FPR regime, which is why the focal-loss variant meaningfully outperforms a standard cross-entropy baseline.
 
-At a 1% false-alarm budget — a reasonable production threshold — the model catches **83.8% of attacks** on PromptShield.
+At a 1% false-alarm budget: a reasonable production threshold, the model catches 83.8% of attacks on PromptShield.
 
 ---
 
-## 6. Reading the deepset result
+6. Reading the deepset result
 
 On deepset, Prompt Guard 2 wins by AUC (0.923 vs 0.838) and by F1 (0.813 vs 0.734). The custom model is weaker here, and this is worth understanding.
 
@@ -124,68 +124,67 @@ deepset is a smaller (662 samples), older, and simpler benchmark. Its injections
 
 The custom model was trained on PromptShield's more sophisticated attack taxonomy (including structured-query scenarios and HackAPrompt's creative injections). When it sees deepset's simpler attacks, it has to generalize out of distribution. It still beats Llama Guard 3 clearly (0.838 AUC vs 0.666), but it gives up ground to Prompt Guard 2's broader training.
 
-**Honest takeaway:** the custom model is specialized for the deployment-relevant PromptShield distribution. On the simpler deepset benchmark, a smaller general-purpose classifier does better. In a production system that sees real attacker traffic — which looks much more like PromptShield than deepset — the custom model is the right choice.
+Takeaway: The custom model is specialized for the deployment-relevant PromptShield distribution. On the simpler deepset benchmark, a smaller general-purpose classifier does better. In a production system that sees real attacker traffic — which looks much more like PromptShield than deepset — the custom model is the right choice.
 
 ---
 
-## 7. Reading the Llama Guard 3 result
+7. Reading the Llama Guard 3 result
 
 Llama Guard 3's scores are essentially random separator performance:
 
-- **AUC 0.557 on PromptShield, 0.666 on deepset** — close to the 0.5 floor.
-- **At threshold 0.5, accuracy is exactly 0.500** on PromptShield and 0.516 on deepset. Examining the raw outputs: `P(unsafe) < 0.5` for essentially every prompt. The model classifies everything as safe at the standard operating point.
-- The F1-optimal threshold sits at 0.05 on PromptShield and 0.07 on deepset — absurdly low cutoffs that suggest the model has almost no discriminative signal for prompt injection specifically.
-- **TPR@1%FPR = 0.4%** on PromptShield. At any reasonable false-alarm budget, it catches effectively nothing.
+- AUC 0.557 on PromptShield, 0.666 on deepset, close to the 0.5 floor.
+- At threshold 0.5, accuracy is exactly 0.500 on PromptShield and 0.516 on deepset. Examining the raw outputs: `P(unsafe) < 0.5` for essentially every prompt. The model classifies everything as safe at the standard operating point.
+- The F1-optimal threshold sits at 0.05 on PromptShield and 0.07 on deepset, absurdly low cutoffs that suggest the model has almost no discriminative signal for prompt injection specifically.
+- TPR@1%FPR = 0.4% on PromptShield. At any reasonable false-alarm budget, it catches effectively nothing.
 
-**Why this happens.** Llama Guard 3 is a content safety classifier, not an injection detector. It's trained on the MLCommons taxonomy: violence, sexual content, hate speech, CBRN, etc., with prompt injection as one of 14 categories (S14). Most PromptShield attacks don't look "harmful" by those criteria — they look like benign summarization requests with injected payloads. Llama Guard 3 correctly identifies them as not-harmful and marks them safe.
+Why this happens. Llama Guard 3 is a content safety classifier, not an injection detector. It's trained on the MLCommons taxonomy: violence, sexual content, hate speech, CBRN, etc., with prompt injection as one of 14 categories (S14). Most PromptShield attacks don't look "harmful" by those criteria — they look like benign summarization requests with injected payloads. Llama Guard 3 correctly identifies them as not-harmful and marks them safe.
 
-**This is not a failure of the model** — it's using the wrong model for the wrong task. But it documents something useful: the common assumption that Llama Guard 3 provides prompt injection protection out of the box is mistaken. Deployments that rely on it for this purpose are effectively unprotected against prompt injection in the absence of a dedicated classifier.
+This is not a failure of the model, it's using the wrong model for the wrong task. But it documents something useful: the common assumption that Llama Guard 3 provides prompt injection protection out of the box is mistaken. Deployments that rely on it for this purpose are effectively unprotected against prompt injection in the absence of a dedicated classifier.
 
 ---
+8. Deployment implications
 
-## 8. Deployment implications
-
-**For PromptShield-style attacks (realistic production traffic):**
+For PromptShield-style attacks (realistic production traffic):
 
 The custom Llama LoRA model is the right primary rail. It catches 83.8% of attacks at a 1% false-alarm rate, runs in 35 ms, and dominates both baselines by a large margin.
 
-**For deepset-style simple attacks:**
+For deepset-style simple attacks:
 
 Prompt Guard 2 performs better and runs 7× faster. If the deployment context primarily sees straightforward "ignore previous instructions" attacks from unsophisticated attackers, PG2 is lighter-weight and sufficient.
 
-**For layered defense:**
+For layered defense:
 
 A two-stage pipeline uses both models productively: PG2 runs first as a cheap primary filter (5 ms, catches simple attacks), the custom model runs second on anything PG2 flags as borderline (35 ms, better on structured attacks). Llama Guard 3 stays in the pipeline for its actual purpose — general harmful content safety — not for injection detection.
 
-**For calibration:**
+For calibration:
 
 The custom model's optimal threshold on PromptShield is **0.00087** — a near-zero value. This is a calibration artifact (the saved temperature scaler had `T=1.0` exactly, meaning it was never fit during training). The ranking is near-perfect; proper post-hoc Platt or temperature scaling on a held-out set would bring this to a human-interpretable threshold without changing AUC or TPR@FPR.
 
 ---
 
-## 9. Caveats
+9. Caveats
 
-**Sample size.** 2000 stratified samples per dataset is enough to distinguish the models with confidence (the gaps between top and bottom are > 30 percentage points), but fine differentiation between Llama LoRA and PG2 on the deepset tail would benefit from full-size evaluation. The PromptShield result at 2K already aligns with expected performance from the paper, suggesting the sampling is representative.
+Sample size. 2000 stratified samples per dataset is enough to distinguish the models with confidence (the gaps between top and bottom are > 30 percentage points), but fine differentiation between Llama LoRA and PG2 on the deepset tail would benefit from full-size evaluation. The PromptShield result at 2K already aligns with expected performance from the paper, suggesting the sampling is representative.
 
-**Two datasets, not four.** BIPIA (indirect injection) and qualifire were planned but did not load in this run. Indirect injection in particular is worth measuring separately because it's the attack category most relevant to RAG-based applications and the one where generative classifiers like Llama Guard 3 might plausibly recover some of the ground they lost here.
+Two datasets, not four. BIPIA (indirect injection) and qualifire were planned but did not load in this run. Indirect injection in particular is worth measuring separately because it's the attack category most relevant to RAG-based applications and the one where generative classifiers like Llama Guard 3 might plausibly recover some of the ground they lost here.
 
-**Threshold optimization on test data.** The F1-optimal thresholds reported here were derived on the same data used for evaluation. In production, you'd want to tune the threshold on a held-out validation set to avoid overfitting. The TPR@FPR metrics don't have this issue — they're derived directly from the ROC curve and don't require threshold selection.
+Threshold optimization on test data. The F1-optimal thresholds reported here were derived on the same data used for evaluation. In production, you'd want to tune the threshold on a held-out validation set to avoid overfitting. The TPR@FPR metrics don't have this issue — they're derived directly from the ROC curve and don't require threshold selection.
 
-**Llama Guard 3 comparison is somewhat unfair but deliberate.** It's being used off-label, and it fails accordingly. The point of including it is to document empirically that it isn't a drop-in replacement for a dedicated injection classifier, which is a common misconception.
-
----
-
-## 10. Files produced
-
-- `large_scale_metrics.csv` — the full metrics table (6 rows: 3 models × 2 datasets, one row per combination)
-- `results_{MODEL}_{DATASET}.csv` — per-sample predictions, confidences, latencies
-- `sample_{DATASET}.csv` — the exact stratified samples used (identical across models for fair comparison)
-- `large_scale_results.png` — 4-panel visualization: AUC heatmap, TPR@1%FPR heatmap, latency violin, ROC curves per dataset
-- `low_fpr_deep_dive.png` — bar chart of TPR@1%FPR and TPR@0.1%FPR per model per dataset
+Llama Guard 3 comparison is somewhat unfair but deliberate. It's being used off-label, and it fails accordingly. The point of including it is to document empirically that it isn't a drop-in replacement for a dedicated injection classifier, which is a common misconception.
 
 ---
 
-## 11. Conclusion
+10. Files produced
+
+- `large_scale_metrics.csv` - the full metrics table (6 rows: 3 models × 2 datasets, one row per combination)
+- `results_{MODEL}_{DATASET}.csv` - per-sample predictions, confidences, latencies
+- `sample_{DATASET}.csv` - the exact stratified samples used (identical across models for fair comparison)
+- `large_scale_results.png` - 4-panel visualization: AUC heatmap, TPR@1%FPR heatmap, latency violin, ROC curves per dataset
+- `low_fpr_deep_dive.png` - bar chart of TPR@1%FPR and TPR@0.1%FPR per model per dataset
+
+---
+
+11. Conclusion
 
 On the primary benchmark that reflects realistic deployment attacks (PromptShield), the custom-trained Llama LoRA model achieves AUC 0.958 and catches 83.8% of attacks at a 1% false-alarm rate. It outperforms Meta's Prompt Guard 2 (TPR@1%FPR = 17.1%) by a factor of nearly 5 and outperforms Llama Guard 3 (TPR@1%FPR = 0.4%) by two orders of magnitude.
 
