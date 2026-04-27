@@ -202,6 +202,6 @@ If you use this in your work:
 @misc{healthcare-guardrails-tr,
   title  = {Healthcare Guardrails Pipeline for Turkish+English LLMs},
   year   = {2026},
-  url    = {<your-repo-url>}
+  url    = https://github.com/ednen/Nemo-Guardrail-comparison
 }
 ```
